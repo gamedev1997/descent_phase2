@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+	<title>Descent</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	
+	<!-- Made with Construct, the game and app creator :: https://www.construct.net -->
+	<meta name="generator" content="Scirra Construct">
+
+
+
+	<link rel="manifest" href="appmanifest.json">
+	<link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+	<link rel="apple-touch-icon" sizes="256x256" href="icons/icon-256.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+	<link rel="icon" type="image/png" href="icons/icon-512.png">
+
+	<link rel="stylesheet" href="style.css">
+
+	<script>console.log("phase-2_v1")</script>
+
+
+
+</head> 
+ 
+<body>
+
+	
+
+<script>
+if (location.protocol.substr(0, 4) === "file")
+{
+	alert("Web exports won't work until you upload them. (When running on the file: protocol, browsers block many features from working for security reasons.)");
+}
+</script>
+	
+	<noscript>
+		<div id="notSupportedWrap">
+			<h2 id="notSupportedTitle">This content requires JavaScript</h2>
+			<p class="notSupportedMessage">JavaScript appears to be disabled. Please enable it to view this content.</p>
+		</div>
+	</noscript>
+	<script src="scripts/modernjscheck.js"></script>
+	<script src="scripts/supportcheck.js"></script>
+	<script src="scripts/offlineclient.js" type="module"></script>
+	<script src="scripts/main.js" type="module"></script>
+	<script src="scripts/register-sw.js" type="module"></script>
+
+	<script>
+
+		function getLevel(){
+
+			window.kmpJsBridge.callNative("getGameInfo", "", function(data) {
+         let gameInfo = JSON.parse(data);
+         let difficulty = gameInfo.difficulty
+		 let  shouldShowTutorial = gameInfo.shouldShowTutorial;
+		 c3_callFunction("setLevel", [difficulty, shouldShowTutorial]);
+});
+		}
+
+		function gameState(state){
+			console.log(JSON.stringify({"gameState":state}));
+			// window.kmpJsBridge.callNative("setGameResult", JSON.stringify({"gameState":state}));
+			window.kmpJsBridge.callNative("onGameStateChanged", JSON.stringify({"gameState":state}));
+		}
+
+		function sendData(state, score){
+			console.log(JSON.stringify({"gameState":state, "coins":score}));
+
+			if(state == "Level_Failed"){
+
+				window.kmpJsBridge.callNative("setGameResult", JSON.stringify({
+                 coinsCollected: score,
+                 successfulDescent: false
+         }), function(data) {
+         let gameInfo = JSON.parse(data);
+         let difficulty = gameInfo.difficulty
+		 let  shouldShowTutorial = gameInfo.shouldShowTutorial;
+		 c3_callFunction("setLevelValue", [difficulty, shouldShowTutorial]);
+});
+			}
+
+			else if(state == "Level_Complete"){
+
+				window.kmpJsBridge.callNative("setGameResult", JSON.stringify({
+                 coinsCollected: score,
+                 successfulDescent: true
+         }), function(data) {
+         let gameInfo = JSON.parse(data);
+         let difficulty = gameInfo.difficulty
+		 let  shouldShowTutorial = gameInfo.shouldShowTutorial;
+		 c3_callFunction("setLevelValue", [difficulty, shouldShowTutorial]);
+		 c3_callFunction("gameRestart");
+
+});
+			}
+			
+		}
+
+		function gameLoaded(){
+
+			getLevel();
+		};
+	</script>
+
+</body> 
+</html>
